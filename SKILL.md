@@ -6,10 +6,10 @@ description: >
   改贴图图层，或用户说“读一下这个 psd”、“把这层关掉再存”。
   禁止把宿主工程路径写进本 skill。
 license: MIT
-compatibility: Requires Python 3.9+, psd-tools and Pillow.
 metadata:
   author: MlsMoon
   version: "1.0"
+  compatibility: Requires Python 3.9+, psd-tools and Pillow.
 ---
 
 # PSD：读取与修改
