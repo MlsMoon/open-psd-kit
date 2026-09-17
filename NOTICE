@@ -1,0 +1,9 @@
+open-psd-kit
+Copyright (c) 2026 MlsMoon
+
+This project is licensed under the MIT License. See LICENSE.
+
+Third-party software:
+
+- psd-tools (MIT) https://github.com/psd-tools/psd-tools
+- Pillow (HPND) https://python-pillow.org
