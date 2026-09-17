@@ -20,6 +20,7 @@ It is not tied to any game project.
 | Visibility / opacity / name / blend | `scripts/psd_kit.py set FILE --layer NAME --out out.psd` |
 | Replace a pixel layer | `scripts/psd_kit.py replace-pixels FILE --layer NAME --image in.png --out out.psd` |
 | Create a blank RGBA document | `scripts/psd_kit.py new --size 64x64 --mode RGBA --out out.psd` |
+| Stack images as layers, bottom first | `scripts/psd_kit.py stack --layer BC=bc.png --layer Mask=mask.png --out out.psd` |
 | Read-only batch scan | `scripts/psd_kit.py batch-inspect --root DIR --glob "*.psd"` |
 
 Human summary is the default. Pass `--json` for structured UTF-8 stdout. Failures exit non-zero and explain on stderr.

@@ -37,6 +37,7 @@ Read [write limits](references/write-limits.md) first. Format notes:
 | Edit layer properties | `scripts/psd_kit.py set FILE --layer NAME --out out.psd` | New PSD |
 | Replace a pixel layer | `scripts/psd_kit.py replace-pixels FILE --layer NAME --image in.png --out out.psd` | New PSD |
 | Create a blank document | `scripts/psd_kit.py new --size 64x64 --mode RGBA --out out.psd` | New PSD |
+| Stack images as layers | `scripts/psd_kit.py stack --layer BC=bc.png --layer Mask=mask.png --out out.psd` | New PSD |
 | Read-only batch scan | `scripts/psd_kit.py batch-inspect --root DIR --glob "*.psd"` | Summary or `--json` |
 
 **Contract**: human summary by default; `--json` on UTF-8 stdout; non-zero
@@ -89,6 +90,7 @@ python scripts/psd_kit.py export assets/sample.psd --layer Fill --out fill.png
 python scripts/psd_kit.py set assets/sample.psd --layer Fill --visible 0 --out hidden.psd
 python scripts/psd_kit.py replace-pixels assets/sample.psd --layer Fill --image patch.png --out patched.psd
 python scripts/psd_kit.py new --size 64x64 --mode RGBA --out blank.psd
+python scripts/psd_kit.py stack --layer BC=bc.png --layer Mask=mask.png --out stacked.psd
 python scripts/psd_kit.py batch-inspect --root ./assets --glob "*.psd" --json
 ```
 

@@ -137,3 +137,52 @@ def run_new(size: str, mode: str, out: str | None, fill_name: str) -> None:
     image = Image.new(color_mode, (width, height), fill)
     psd.create_pixel_layer(image, name=fill_name)
     save_psd(psd, dest)
+
+
+def _parse_named_image(raw: str) -> tuple[str, Path]:
+    """Parse NAME=path for stack layers."""
+    if "=" not in raw:
+        fail("stack --layer must be NAME=path")
+    name, path_text = raw.split("=", 1)
+    name = name.strip()
+    if not name:
+        fail("stack --layer needs a name")
+    return name, resolve_path(path_text)
+
+
+def run_stack(
+    out: str | None,
+    layer_args: list[str],
+    hidden_names: list[str],
+    mode: str,
+) -> None:
+    """Create a PSD from bottom-to-top named images. First layer sets canvas size."""
+    if not out:
+        fail("stack requires --out")
+    if not layer_args:
+        fail("stack requires at least one --layer NAME=path")
+    named = [_parse_named_image(item) for item in layer_args]
+    color_mode = mode.upper()
+    if color_mode not in {"RGB", "RGBA", "L"}:
+        fail("stack --mode supports RGB / RGBA / L only")
+    hidden = {item.strip() for item in hidden_names}
+    images: list[tuple[str, Image.Image]] = []
+    for name, path in named:
+        try:
+            images.append((name, Image.open(path)))
+        except Exception as exc:  # noqa: BLE001
+            fail(f"cannot open image: {path}: {exc}")
+    width, height = images[0][1].size
+    try:
+        psd = PSDImage.new(color_mode, (width, height))
+    except Exception as exc:  # noqa: BLE001
+        fail(f"cannot create PSD: {exc}")
+        return
+    for name, image in images:
+        if image.size != (width, height):
+            image = image.resize((width, height), Image.Resampling.LANCZOS)
+        converted = image.convert(color_mode)
+        layer = psd.create_pixel_layer(converted, name=name)
+        if name in hidden:
+            layer.visible = False
+    save_psd(psd, Path(out))

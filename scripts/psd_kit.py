@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 from psd_common import PsdKitError  # noqa: E402
 from psd_export import run_export  # noqa: E402
 from psd_inspect import run_batch_inspect, run_inspect, run_layers  # noqa: E402
-from psd_mutate import run_new, run_replace_pixels, run_set  # noqa: E402
+from psd_mutate import run_new, run_replace_pixels, run_set, run_stack  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -63,6 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--out", required=True)
     new.add_argument("--layer-name", default="Fill")
 
+    stack = sub.add_parser("stack", help="create a PSD from named images, bottom first")
+    stack.add_argument("--layer", action="append", required=True, help="NAME=image")
+    stack.add_argument("--hide", action="append", default=[])
+    stack.add_argument("--mode", default="RGBA")
+    stack.add_argument("--out", required=True)
+
     batch = sub.add_parser("batch-inspect", help="read-only directory scan, no composite")
     batch.add_argument("--root", required=True)
     batch.add_argument("--glob", default="*.psd")
@@ -98,6 +104,9 @@ def dispatch(args: argparse.Namespace) -> None:
         return
     if args.command == "new":
         run_new(args.size, args.mode, args.out, args.layer_name)
+        return
+    if args.command == "stack":
+        run_stack(args.out, args.layer, args.hide, args.mode)
         return
     if args.command == "batch-inspect":
         run_batch_inspect(args.root, args.glob, args.json)
