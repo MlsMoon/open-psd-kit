@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""open-psd-kit CLI 入口。实现见 psd_inspect / psd_export / psd_mutate。"""
+"""open-psd-kit CLI entry. Implementations live in inspect/export/mutate."""
 
 from __future__ import annotations
 
@@ -19,28 +19,28 @@ from psd_mutate import run_new, run_replace_pixels, run_set  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """组装子命令。"""
+    """Build subcommands."""
     parser = argparse.ArgumentParser(
         prog="psd_kit.py",
-        description="读取并修改 PSD/PSB。默认摘要；--json 输出结构化结果。",
+        description="Read and modify PSD/PSB. Summary by default; --json for structured output.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    inspect = sub.add_parser("inspect", help="文档尺寸、模式、层数")
+    inspect = sub.add_parser("inspect", help="document size, mode, layer count")
     inspect.add_argument("file")
     inspect.add_argument("--json", action="store_true")
 
-    layers = sub.add_parser("layers", help="图层树")
+    layers = sub.add_parser("layers", help="layer tree")
     layers.add_argument("file")
     layers.add_argument("--tree", action="store_true")
     layers.add_argument("--json", action="store_true")
 
-    export = sub.add_parser("export", help="导出合成或单层 PNG")
+    export = sub.add_parser("export", help="export composite or one layer as PNG")
     export.add_argument("file")
     export.add_argument("--layer")
     export.add_argument("--out")
 
-    setter = sub.add_parser("set", help="改图层属性并保存")
+    setter = sub.add_parser("set", help="edit layer properties and save")
     setter.add_argument("file")
     setter.add_argument("--layer", required=True)
     setter.add_argument("--visible", type=int, choices=(0, 1))
@@ -50,20 +50,20 @@ def build_parser() -> argparse.ArgumentParser:
     setter.add_argument("--out")
     setter.add_argument("--in-place", action="store_true")
 
-    replace = sub.add_parser("replace-pixels", help="用图片替换像素层")
+    replace = sub.add_parser("replace-pixels", help="replace a pixel layer from an image")
     replace.add_argument("file")
     replace.add_argument("--layer", required=True)
     replace.add_argument("--image", required=True)
     replace.add_argument("--out")
     replace.add_argument("--in-place", action="store_true")
 
-    new = sub.add_parser("new", help="新建空白 PSD")
+    new = sub.add_parser("new", help="create a blank PSD")
     new.add_argument("--size", default="64x64")
     new.add_argument("--mode", default="RGBA")
     new.add_argument("--out", required=True)
     new.add_argument("--layer-name", default="Fill")
 
-    batch = sub.add_parser("batch-inspect", help="目录只读巡检，不合成")
+    batch = sub.add_parser("batch-inspect", help="read-only directory scan, no composite")
     batch.add_argument("--root", required=True)
     batch.add_argument("--glob", default="*.psd")
     batch.add_argument("--json", action="store_true")
@@ -71,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def dispatch(args: argparse.Namespace) -> None:
-    """按子命令分发。"""
+    """Dispatch a subcommand."""
     if args.command == "inspect":
         run_inspect(args.file, args.json)
         return
@@ -104,7 +104,7 @@ def dispatch(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    """CLI 入口。"""
+    """CLI entry."""
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if hasattr(sys.stderr, "reconfigure"):

@@ -1,47 +1,50 @@
-# PSD 读写自我迭代
+# PSD read/write self-iteration
 
-试错不能只留在本轮对话。通过门禁的尝试必须变成正式旗标、口径或用法。
+Do not leave retries only in this chat. Attempts that pass the gate must
+become an official flag, a written rule, or a usage note.
 
-本文件是通用协议，不绑定任何游戏工程。禁止写入宿主工程路径、
-家具名、关卡名或业务资产名。
+This file is a generic protocol. It is not tied to any game project.
+Never write host-project paths, furniture names, level names, or asset names.
 
-## 何时触发
+## When it triggers
 
-本轮出现以下任一情况，收尾前必须跑升格门禁：
+Run the promotion gate before wrap-up if any of these happened this turn:
 
-- 执行了 >=3 次 `psd_kit.py`
-- 同一旗标族失败或改参后重试 >=2 次
-- 用临时 Python 或手工改二进制完成了本可变成一等旗标的能力
+- `psd_kit.py` ran 3 or more times
+- The same flag family failed or was retried 2 or more times
+- Ad-hoc Python or hand-edited binary did work that should be a first-class flag
 
-同一旗标族连续失败 2 次后，第三次之前必须重读 `SKILL.md` 或 `--help`，
-禁止凭记忆再猜参数。
+After 2 failures in the same flag family, reread `SKILL.md` or `--help`
+before a third try. Do not guess flags from memory.
 
-## 落点（只选一处）
+## Landing (pick one)
 
-| 落点 | 何时 |
+| Landing | When |
 |---|---|
-| 正式 CLI 旗标 | 缺稳定动词、结构化输出、失败码或可复用图层统计 |
-| `references/` 口径 | 格式陷阱、可写边界、颜色模式 |
-| 本 skill `SKILL.md` 用法 | 触发词、检查清单、示例命令 |
+| Official CLI flag | Missing a stable verb, structured output, exit code, or reusable layer stats |
+| `references/` rule | Format trap, writable bound, color mode |
+| This skill `SKILL.md` usage | Triggers, checklist, example commands |
 
-不要把同一段知识同时写进脚本注释、reference 和 README。
+Do not copy the same fact into script comments, a reference, and the README.
 
-## 授权
+## Authorization
 
-门禁通过后可直接回写本 skill 的 `SKILL.md`、`references/` 和 `scripts/`。
-宿主工程 skill、新建独立 skill、或把业务资产名写进本仓，仍需用户确认。
+After the gate, this skill's `SKILL.md`, `references/`, and `scripts/` may
+be updated directly. Host-project skills, a new standalone skill, or writing
+business asset names into this repo still need user confirmation.
 
-单个 `.py` 仍约 250 行；新能力按职责拆文件，不要把解析塞进 CLI 入口。
+Keep each `.py` near 250 lines. Split new work by duty. Do not put parsing
+into the CLI entry.
 
-## 收尾报告
+## Wrap-up report
 
-必须输出这四行：
+Always print these four lines:
 
 ```text
-PSD 读写自我迭代：触发原因
-升格落点：正式旗标 / reference / SKILL.md / 未升格
-写入文件：
-未写入及原因：
+PSD read/write self-iteration: <trigger>
+Promotion landing: official flag / reference / SKILL.md / none
+Files written:
+Not written and why:
 ```
 
-未触发则写「本轮未触发 PSD 读写升格」。
+If the gate did not fire, write "No PSD read/write promotion this turn."

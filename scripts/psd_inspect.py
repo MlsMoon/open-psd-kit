@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""inspect / layers / batch-inspect。批量默认不合成。"""
+"""inspect / layers / batch-inspect. Batch never composites."""
 
 from __future__ import annotations
 
@@ -20,13 +20,13 @@ from psd_common import (
 
 
 def inspect_file(path: Path) -> dict[str, Any]:
-    """打开一份 PSD 并返回文档摘要。"""
+    """Open one PSD and return a document summary."""
     psd = open_psd(path)
     return document_record(path, psd)
 
 
 def run_inspect(path: str, as_json: bool) -> None:
-    """inspect 子命令。"""
+    """inspect subcommand."""
     record = inspect_file(resolve_path(path))
     if as_json:
         emit_json(record)
@@ -35,7 +35,7 @@ def run_inspect(path: str, as_json: bool) -> None:
 
 
 def run_layers(path: str, tree: bool, as_json: bool) -> None:
-    """layers 子命令。"""
+    """layers subcommand."""
     record = inspect_file(resolve_path(path))
     if as_json:
         emit_json(record)
@@ -44,7 +44,7 @@ def run_layers(path: str, tree: bool, as_json: bool) -> None:
 
 
 def collect_files(root: Path, pattern: str) -> list[Path]:
-    """按 glob 收集文件，跳过常见缓存目录。"""
+    """Collect files by glob, skipping common cache directories."""
     skip = {".git", "Library", "PackageCache", "__pycache__", "node_modules"}
     files: list[Path] = []
     for path in root.rglob(pattern):
@@ -58,10 +58,10 @@ def collect_files(root: Path, pattern: str) -> list[Path]:
 
 
 def run_batch_inspect(root: str, pattern: str, as_json: bool) -> None:
-    """只读巡检目录，不 composite。"""
+    """Read-only directory scan. No composite."""
     base = Path(root)
     if not base.is_dir():
-        fail(f"目录不存在: {base}")
+        fail(f"directory not found: {base}")
     results: list[dict[str, Any]] = []
     failures = 0
     for path in collect_files(base, pattern):

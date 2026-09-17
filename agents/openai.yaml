@@ -1,4 +1,4 @@
 interface:
-  display_name: "PSD：读取与修改文件"
-  short_description: "读取并修改 PSD/PSB 图层、导出合成图并安全写回新文件"
-  default_prompt: "使用 $open-psd-kit 读取或修改 PSD/PSB。先 inspect 再 export 或 set/replace-pixels，默认写到新文件。"
+  display_name: "PSD: Read and Modify Files"
+  short_description: "Read, export, and safely rewrite PSD/PSB layers"
+  default_prompt: "Use $open-psd-kit to read or modify PSD/PSB files. Inspect first, then export or set/replace-pixels. Write to a new file by default."

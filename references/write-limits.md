@@ -1,31 +1,34 @@
-# 写回边界
+# Write limits
 
-`psd-tools` 可以 `save`，但不能完整复刻 Photoshop。按这个表选命令。
+`psd-tools` can `save`, but it does not clone Photoshop. Pick commands from
+this table.
 
-## 保证
+## Guaranteed
 
-- 读取文档头与图层树
-- 像素层 `topil` / 文档 `composite` 导出 PNG
-- 改 `visible`、`opacity`、`name`、`blend_mode` 后保存
-- 用 Pillow 图替换或新增像素层后保存
+- Read the document header and layer tree
+- Export a pixel layer with `topil` or the document with `composite`
+- Save after changing `visible`, `opacity`, `name`, or `blend_mode`
+- Save after replacing or adding a pixel layer from a Pillow image
 
-默认写到 `--out`。只有用户明确要求覆盖原文件时才加 `--in-place`。
+Write to `--out` by default. Add `--in-place` only when the user asks to
+overwrite the source file.
 
-## 不保证
+## Not guaranteed
 
-- 智能对象内部文档往返
-- 实时文字（字体、段落、变形）
-- 图层样式（投影、描边、渐变叠加）完整写回
-- 矢量形状路径与效果
-- 16/32 位深度与全部混合模式的视觉一致
+- Smart-object inner-document round-trip
+- Live type (fonts, paragraphs, warps)
+- Full layer-style writeback (shadow, stroke, gradient overlay)
+- Vector shape paths and effects
+- Visual match for 16/32-bit depth and every blend mode
 
-这些层在 `layers` 输出里标 `writable=false`。
-对它们执行 `replace-pixels` 必须失败并说明 kind。
+Those layers are marked `writable=false` in `layers` output.
+`replace-pixels` must fail on them and report the kind.
 
-## 操作建议
+## Suggested order
 
-1. 先 `inspect` 和 `layers --tree`
-2. 需要看画面时再 `export`，不要在 batch 里合成
-3. 改属性用 `set`；改画面用 `replace-pixels`
-4. 保存后再次 `inspect` 对照层名、可见性和尺寸
-5. 替换像素层时保留原层的 Pascal 名和 Unicode 名，避免中文层名按 mac_roman 写回失败
+1. Run `inspect` and `layers --tree` first
+2. `export` only when a picture is needed; never composite in batch
+3. Use `set` for properties and `replace-pixels` for pixels
+4. `inspect` again after save and compare names, visibility, and size
+5. When replacing pixels, keep the original Pascal name and Unicode name
+   so non-ASCII layer names do not fail `mac_roman` encode on save

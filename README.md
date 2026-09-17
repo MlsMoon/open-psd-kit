@@ -1,8 +1,6 @@
 # open-psd-kit
 
-[English](README.md) · [简体中文](README.zh-CN.md)
-
-An [Agent Skill](https://agentskills.io/specification) that teaches AI agents how to read and modify Photoshop PSD / PSB files.
+An [Agent Skill](https://agentskills.io/specification) that teaches AI agents how to read and modify Photoshop PSD / PSB files. The skill folder is English-only.
 
 This repository **is** the skill folder. The directory name, GitHub repo name, and `SKILL.md` `name` field must all stay `open-psd-kit`.
 

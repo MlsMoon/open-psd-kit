@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""导出整图合成或单层 PNG。"""
+"""Export a flattened composite or a single-layer PNG."""
 
 from __future__ import annotations
 
@@ -12,15 +12,15 @@ from psd_common import fail, find_layer, is_pixel_writable, open_psd, resolve_pa
 
 
 def save_image(image: Image.Image, dest: Path) -> None:
-    """保存 PNG，缺目录时创建。"""
+    """Save a PNG, creating parent directories as needed."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     image.save(dest)
 
 
 def run_export(path: str, layer_name: str | None, out: str | None) -> None:
-    """export 子命令。"""
+    """export subcommand."""
     if not out:
-        fail("export 必须提供 --out")
+        fail("export requires --out")
     dest = Path(out)
     psd = open_psd(resolve_path(path))
     try:
@@ -30,9 +30,9 @@ def run_export(path: str, layer_name: str | None, out: str | None) -> None:
         else:
             image = psd.composite()
     except Exception as exc:  # noqa: BLE001
-        fail(f"导出失败: {exc}")
+        fail(f"export failed: {exc}")
         return
     if image is None:
-        fail("导出结果为空")
+        fail("export produced an empty image")
     save_image(image, dest)
     print(f"wrote {dest.as_posix()} {image.size[0]}x{image.size[1]}")

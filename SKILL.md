@@ -1,10 +1,11 @@
 ---
 name: open-psd-kit
 description: >
-  读取并修改 PSD/PSB 图层与像素。涵盖图层树、合成导出、可见性/不透明度/
-  混合模式、像素层替换与安全写回。适用于检查 Photoshop 文件、导出单层、
-  改贴图图层，或用户说“读一下这个 psd”、“把这层关掉再存”。
-  禁止把宿主工程路径写进本 skill。
+  Read and modify PSD/PSB layers and pixels. Covers layer trees, composite
+  export, visibility/opacity/blend, pixel-layer replace, and safe writes.
+  Use when inspecting Photoshop files, exporting a layer, editing a texture
+  layer, or the user says "read this psd" / "hide this layer and save".
+  Never write host-project paths into this skill.
 license: MIT
 metadata:
   author: MlsMoon
@@ -12,66 +13,72 @@ metadata:
   compatibility: Requires Python 3.9+, psd-tools and Pillow.
 ---
 
-# PSD：读取与修改
+# PSD: Read and Modify
 
-> 通用 Agent Skill：用开源 `psd-tools` 读/改 PSD 与 PSB。不绑定任何游戏项目。
+> Generic agent skill: read and write PSD/PSB with open-source `psd-tools`.
+> Not tied to any game project.
 
-## 1. 何时使用
+## 1. When to use
 
-- 用户提到 `.psd` / `.psb`、图层、合成导出、Emissive 贴图源文件
-- 需要改可见性、不透明度、混合模式或替换像素层
-- 禁止手改二进制 PSD，禁止调用本机 Photoshop 或商业 Aspose
+- The user mentions `.psd` / `.psb`, layers, composite export, or emissive sources
+- Visibility, opacity, blend mode, or pixel-layer replacement is required
+- Do not hand-edit binary PSD. Do not call local Photoshop or commercial Aspose
 
-先读 [写回边界](references/write-limits.md)。格式见 [PSD 速查](references/psd-format.md)。
+Read [write limits](references/write-limits.md) first. Format notes:
+[PSD cheat sheet](references/psd-format.md).
 
-## 2. 使用流程
+## 2. Workflow
 
-| 需求 | 命令 | 输出 |
+| Need | Command | Output |
 |---|---|---|
-| 看尺寸/模式/层数 | `scripts/psd_kit.py inspect FILE` | 摘要或 `--json` |
-| 看图层树 | `scripts/psd_kit.py layers FILE --tree` | 名称/类型/可写 |
-| 导出合成或单层 | `scripts/psd_kit.py export FILE --out out.png` | PNG |
-| 改图层属性 | `scripts/psd_kit.py set FILE --layer NAME --out out.psd` | 新 PSD |
-| 替换像素层 | `scripts/psd_kit.py replace-pixels FILE --layer NAME --image in.png --out out.psd` | 新 PSD |
-| 新建空白文档 | `scripts/psd_kit.py new --size 64x64 --mode RGBA --out out.psd` | 新 PSD |
-| 批量只读巡检 | `scripts/psd_kit.py batch-inspect --root DIR --glob "*.psd"` | 摘要或 `--json` |
+| Size / mode / layer count | `scripts/psd_kit.py inspect FILE` | Summary or `--json` |
+| Layer tree | `scripts/psd_kit.py layers FILE --tree` | Name / kind / writable |
+| Composite or single layer | `scripts/psd_kit.py export FILE --out out.png` | PNG |
+| Edit layer properties | `scripts/psd_kit.py set FILE --layer NAME --out out.psd` | New PSD |
+| Replace a pixel layer | `scripts/psd_kit.py replace-pixels FILE --layer NAME --image in.png --out out.psd` | New PSD |
+| Create a blank document | `scripts/psd_kit.py new --size 64x64 --mode RGBA --out out.psd` | New PSD |
+| Read-only batch scan | `scripts/psd_kit.py batch-inspect --root DIR --glob "*.psd"` | Summary or `--json` |
 
-**约定**：默认摘要；`--json` 走 stdout（UTF-8）；失败退出码非 0 且 stderr 给原因。
-批量默认不合成。写回默认到新文件；`--in-place` 必须显式。
-单个 `.py` 约 250 行；入口是 `psd_kit.py`。
+**Contract**: human summary by default; `--json` on UTF-8 stdout; non-zero
+exit on failure with the reason on stderr. Batch inspect never composites.
+Writes go to a new file; `--in-place` must be explicit. Keep each `.py` near
+250 lines. Entry point is `psd_kit.py`.
 
-试错不能只留在对话里。门禁见 [references/self-iteration.md](references/self-iteration.md)。
+Do not leave retries only in chat. Gate: [references/self-iteration.md](references/self-iteration.md).
 
-本轮出现以下任一情况，收尾前必须跑升格门禁：
+Run the promotion gate before wrap-up if any of these happened this turn:
 
-- 执行了 >=3 次 `psd_kit.py`
-- 同一旗标族失败或改参后重试 >=2 次
-- 用临时 Python 完成了本可变成一等旗标的能力
+- `psd_kit.py` ran 3 or more times
+- The same flag family failed or was retried 2 or more times
+- Ad-hoc Python did work that should become a first-class flag
 
-同一旗标族连续失败 2 次后，第三次之前必须重读本 skill 或 `--help`。
-过门禁后选唯一落点：正式 CLI 旗标、`references/` 口径、或本 `SKILL.md` 用法。
-授权：门禁通过后可直接回写本 skill。禁止写入宿主工程路径或业务资产名。
-收尾必须输出「PSD 读写自我迭代」四行报告；未触发则写「本轮未触发 PSD 读写升格」。
+After 2 failures in the same flag family, reread this skill or `--help`
+before a third try. After the gate, pick one landing: official CLI flag,
+`references/` rule, or this `SKILL.md` usage. Authorization: this skill may
+be updated after the gate. Never write host-project paths or asset names.
 
-## 3. 保证范围
+Wrap-up must print the four-line "PSD read/write self-iteration" report.
+If the gate did not fire, write "No PSD read/write promotion this turn."
 
-| 能做 | 不能保证 |
+## 3. Guaranteed scope
+
+| Supported | Not guaranteed |
 |---|---|
-| 读文档头、图层树、像素层像素 | 智能对象内容完整往返 |
-| 改可见性 / 不透明度 / 名称 / 混合 | 实时文字引擎 |
-| 替换或新增像素层后 `save` | 复杂图层样式、矢量形状 |
+| Document header, layer tree, pixel-layer pixels | Smart-object payload round-trip |
+| Visibility / opacity / name / blend | Live type engine |
+| Replace or add a pixel layer, then `save` | Complex layer styles, vector shapes |
 
-`writable=false` 的层只允许改属性，不能 `replace-pixels`。
+`writable=false` layers may get property edits only. Do not `replace-pixels`.
 
-## 4. 依赖
+## 4. Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-需要 Python 3.9+、`psd-tools`（含 composite 额外依赖）和 Pillow。
+Requires Python 3.9+, `psd-tools` (with composite extras), and Pillow.
 
-## 5. 示例
+## 5. Examples
 
 ```bash
 python scripts/psd_kit.py inspect assets/sample.psd
@@ -85,11 +92,11 @@ python scripts/psd_kit.py new --size 64x64 --mode RGBA --out blank.psd
 python scripts/psd_kit.py batch-inspect --root ./assets --glob "*.psd" --json
 ```
 
-## 6. 检查清单
+## 6. Checklist
 
-- [ ] 已 `pip install -r requirements.txt`
-- [ ] 先 `inspect` / `layers`，再决定 export 还是写回
-- [ ] 写回默认 `--out`，未获准不使用 `--in-place`
-- [ ] 像素替换只打在 `kind=pixel` 且 `writable=true` 的层
-- [ ] 批量巡检未对超大文件做 composite
-- [ ] 公开仓文本没有宿主工程绝对路径或业务资产名
+- [ ] `pip install -r requirements.txt` is done
+- [ ] `inspect` / `layers` first, then export or write
+- [ ] Writes use `--out`; `--in-place` only when approved
+- [ ] Pixel replace targets `kind=pixel` and `writable=true`
+- [ ] Batch inspect did not composite huge files
+- [ ] Public-repo text has no host-project paths or asset names

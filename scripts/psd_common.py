@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""PSD 打开、图层查找与 JSON 输出共用逻辑。"""
+"""Shared PSD open, layer lookup, and JSON output helpers."""
 
 from __future__ import annotations
 
@@ -17,42 +17,42 @@ COLOR_MODE_NAMES = {item.value: item.name for item in ColorMode}
 
 
 class PsdKitError(Exception):
-    """可预期的打开或操作失败。"""
+    """Expected open or mutate failure."""
 
 
 def fail(message: str, code: int = 2) -> None:
-    """抛出可捕获的工具错误。code 留给 CLI 映射退出码。"""
+    """Raise a catchable tool error. `code` maps to the CLI exit code."""
     error = PsdKitError(message)
     error.exit_code = code
     raise error
 
 
 def resolve_path(raw: str) -> Path:
-    """解析用户路径；不存在则失败。"""
+    """Resolve a user path. Fail if the file is missing."""
     path = Path(raw)
     if not path.is_file():
-        fail(f"文件不存在: {path}")
+        fail(f"file not found: {path}")
     return path
 
 
 def open_psd(path: Path) -> PSDImage:
-    """打开 PSD/PSB，坏文件给出原因。"""
+    """Open a PSD/PSB and report a useful reason on bad files."""
     try:
         return PSDImage.open(str(path))
     except Exception as exc:  # noqa: BLE001
-        fail(f"无法打开 PSD: {path}: {exc}")
+        fail(f"cannot open PSD: {path}: {exc}")
         raise
 
 
 def color_mode_name(value: Any) -> str:
-    """把 ColorMode 数值或枚举转成名称。"""
+    """Convert a ColorMode value or enum to a name."""
     if hasattr(value, "name"):
         return str(value.name)
     return COLOR_MODE_NAMES.get(int(value), str(value))
 
 
 def blend_mode_name(value: Any) -> str:
-    """混合模式转成可读名。"""
+    """Convert a blend mode to a readable name."""
     if value is None:
         return ""
     if hasattr(value, "name"):
@@ -61,28 +61,28 @@ def blend_mode_name(value: Any) -> str:
 
 
 def parse_blend_mode(raw: str) -> BlendMode:
-    """解析用户输入的混合模式名。"""
+    """Parse a user blend-mode name."""
     key = raw.strip().upper().replace("-", "_").replace(" ", "_")
     try:
         return BlendMode[key]
     except KeyError:
         names = ", ".join(item.name for item in BlendMode)
-        fail(f"未知混合模式: {raw}。可选: {names}")
+        fail(f"unknown blend mode: {raw}. choices: {names}")
         raise
 
 
 def layer_kind(layer: Any) -> str:
-    """图层 kind，缺省为 unknown。"""
+    """Layer kind, defaulting to unknown."""
     return str(getattr(layer, "kind", "unknown") or "unknown")
 
 
 def is_pixel_writable(layer: Any) -> bool:
-    """只有像素层允许 replace-pixels。"""
+    """Only pixel layers may be used with replace-pixels."""
     return layer_kind(layer) in PIXEL_KINDS and not bool(layer.is_group())
 
 
 def iter_layers(psd: PSDImage, include_groups: bool = True) -> Iterable[Any]:
-    """按 descendants 顺序遍历图层。"""
+    """Walk layers in descendant order."""
     for layer in psd.descendants():
         if layer.is_group() and not include_groups:
             continue
@@ -90,15 +90,15 @@ def iter_layers(psd: PSDImage, include_groups: bool = True) -> Iterable[Any]:
 
 
 def find_layer(psd: PSDImage, name: str) -> Any:
-    """按精确名称找第一层；找不到就失败。"""
+    """Find the first layer by exact name. Fail if missing."""
     layer = psd.find(name)
     if layer is None:
-        fail(f"找不到图层: {name}")
+        fail(f"layer not found: {name}")
     return layer
 
 
 def layer_record(layer: Any) -> dict[str, Any]:
-    """单层结构化摘要。"""
+    """Structured summary for one layer."""
     bbox = [layer.left, layer.top, layer.right, layer.bottom]
     return {
         "name": layer.name,
@@ -114,7 +114,7 @@ def layer_record(layer: Any) -> dict[str, Any]:
 
 
 def document_record(path: Path, psd: PSDImage) -> dict[str, Any]:
-    """文档级结构化摘要，不含像素。"""
+    """Document-level summary without pixels."""
     layers = [layer_record(layer) for layer in iter_layers(psd)]
     return {
         "path": path.as_posix(),
@@ -130,13 +130,13 @@ def document_record(path: Path, psd: PSDImage) -> dict[str, Any]:
 
 
 def emit_json(payload: Any) -> None:
-    """UTF-8 JSON 写到 stdout。"""
+    """Write UTF-8 JSON to stdout."""
     json.dump(payload, sys.stdout, ensure_ascii=False, indent=2)
     sys.stdout.write("\n")
 
 
 def emit_inspect_text(record: dict[str, Any]) -> None:
-    """人类可读 inspect。"""
+    """Human-readable inspect."""
     print(
         f"{record['kind']} v{record['version']} {record['width']}x{record['height']} "
         f"{record['mode']} {record['depth']}bit layers={record['layer_count']}"
@@ -145,7 +145,7 @@ def emit_inspect_text(record: dict[str, Any]) -> None:
 
 
 def emit_layers_text(record: dict[str, Any], tree: bool) -> None:
-    """人类可读图层列表。"""
+    """Human-readable layer list."""
     emit_inspect_text(record)
     if not tree:
         return
@@ -159,26 +159,26 @@ def emit_layers_text(record: dict[str, Any], tree: bool) -> None:
 
 
 def parse_size(raw: str) -> tuple[int, int]:
-    """解析 64x64 尺寸。"""
+    """Parse a WIDTHxHEIGHT size."""
     parts = raw.lower().replace("*", "x").split("x")
     if len(parts) != 2:
-        fail(f"尺寸格式应为 WIDTHxHEIGHT: {raw}")
+        fail(f"size must be WIDTHxHEIGHT: {raw}")
     try:
         width, height = int(parts[0]), int(parts[1])
     except ValueError:
-        fail(f"尺寸不是整数: {raw}")
+        fail(f"size is not an integer pair: {raw}")
         raise
     if width <= 0 or height <= 0:
-        fail(f"尺寸必须为正: {raw}")
+        fail(f"size must be positive: {raw}")
     return width, height
 
 
 def require_out(out: str | None, in_place: bool, source: Path | None) -> Path:
-    """决定写回路径。"""
+    """Resolve the write path."""
     if in_place:
         if source is None:
-            fail("--in-place 需要输入文件")
+            fail("--in-place requires an input file")
         return source
     if not out:
-        fail("写回必须提供 --out，或显式 --in-place")
+        fail("write requires --out, or an explicit --in-place")
     return Path(out)

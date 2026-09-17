@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""set / replace-pixels / new。默认写到新文件。"""
+"""set / replace-pixels / new. Writes go to a new file by default."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from psd_common import (
 
 
 def save_psd(psd: PSDImage, dest: Path) -> None:
-    """保存 PSD，缺目录时创建。"""
+    """Save a PSD, creating parent directories as needed."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     psd.save(str(dest))
     print(f"wrote {dest.as_posix()}")
@@ -40,18 +40,18 @@ def run_set(
     out: str | None,
     in_place: bool,
 ) -> None:
-    """改一层的可见性、不透明度、名称或混合。"""
+    """Change one layer's visibility, opacity, name, or blend."""
     source = resolve_path(path)
     dest = require_out(out, in_place, source)
     if visible is None and opacity is None and new_name is None and blend is None:
-        fail("set 至少提供 --visible / --opacity / --name / --blend")
+        fail("set requires --visible / --opacity / --name / --blend")
     psd = open_psd(source)
     layer = find_layer(psd, layer_name)
     if visible is not None:
         layer.visible = bool(visible)
     if opacity is not None:
         if opacity < 0 or opacity > 255:
-            fail("--opacity 必须是 0..255")
+            fail("--opacity must be 0..255")
         layer.opacity = opacity
     if new_name:
         layer.name = new_name
@@ -67,19 +67,19 @@ def run_replace_pixels(
     out: str | None,
     in_place: bool,
 ) -> None:
-    """用一张图替换已有像素层。"""
+    """Replace an existing pixel layer with an image."""
     source = resolve_path(path)
     dest = require_out(out, in_place, source)
     image_file = resolve_path(image_path)
     try:
         image = Image.open(image_file)
     except Exception as exc:  # noqa: BLE001
-        fail(f"无法打开图片: {image_file}: {exc}")
+        fail(f"cannot open image: {image_file}: {exc}")
         return
     psd = open_psd(source)
     layer = find_layer(psd, layer_name)
     if not is_pixel_writable(layer):
-        fail(f"图层不可替换像素: {layer_name} kind={layer.kind}")
+        fail(f"layer is not pixel-writable: {layer_name} kind={layer.kind}")
     parent = layer.parent if layer.parent is not None else psd
     index = parent.index(layer)
     legacy_name = getattr(getattr(layer, "_record", None), "name", None) or "Layer"
@@ -104,7 +104,7 @@ def run_replace_pixels(
 
 
 def _copy_unicode_layer_name(source: object, dest: object) -> None:
-    """把 Unicode 图层名从原层拷到新像素层，避免 save 走 mac_roman 失败。"""
+    """Copy the Unicode layer name so save does not encode via mac_roman."""
     source_record = getattr(source, "_record", None)
     dest_record = getattr(dest, "_record", None)
     if source_record is None or dest_record is None:
@@ -118,18 +118,18 @@ def _copy_unicode_layer_name(source: object, dest: object) -> None:
 
 
 def run_new(size: str, mode: str, out: str | None, fill_name: str) -> None:
-    """新建空白文档并放一层实色像素，便于自检。"""
+    """Create a blank document with one solid pixel layer for self-checks."""
     if not out:
-        fail("new 必须提供 --out")
+        fail("new requires --out")
     dest = Path(out)
     width, height = parse_size(size)
     color_mode = mode.upper()
     if color_mode not in {"RGB", "RGBA", "L"}:
-        fail("new --mode 仅支持 RGB / RGBA / L")
+        fail("new --mode supports RGB / RGBA / L only")
     try:
         psd = PSDImage.new(color_mode, (width, height))
     except Exception as exc:  # noqa: BLE001
-        fail(f"无法新建 PSD: {exc}")
+        fail(f"cannot create PSD: {exc}")
         return
     fill = (255, 80, 40, 255) if "A" in color_mode else (255, 80, 40)
     if color_mode == "L":
