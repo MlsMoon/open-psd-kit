@@ -6,9 +6,11 @@ This repository **is** the skill folder. The directory name, GitHub repo name, a
 
 ## What this is
 
-Agents should not guess PSD binary layout or call a local Photoshop install. This skill wraps [psd-tools](https://github.com/psd-tools/psd-tools) with a stable CLI for inspect, layer trees, export, property edits, and pixel-layer replace.
+Agents should not guess PSD binary layout or call a local Photoshop install. This skill wraps [psd-tools](https://github.com/psd-tools/psd-tools) with a stable CLI for inspect, layer trees, export, property edits, pixel-layer replace, and stacking images into layers.
 
 It is not tied to any game project.
+
+Retries must not stay in chat. After repeated `psd_kit.py` trials or ad-hoc Python, follow `references/self-iteration.md` and promote one official flag, rule, or usage note.
 
 ## What you get
 

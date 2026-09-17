@@ -1,4 +1,4 @@
 interface:
   display_name: "PSD: Read and Modify Files"
-  short_description: "Read, export, and safely rewrite PSD/PSB layers"
-  default_prompt: "Use $open-psd-kit to read or modify PSD/PSB files. Inspect first, then export or set/replace-pixels. Write to a new file by default."
+  short_description: "Read PSD/PSB layers and self-iterate official CLI flags"
+  default_prompt: "Use $open-psd-kit to read or modify PSD/PSB files. Inspect first, then export or set/replace-pixels. Write to a new file by default. After repeated trials, promote a stable CLI flag instead of leaving ad-hoc Python in chat."

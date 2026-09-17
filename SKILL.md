@@ -5,11 +5,13 @@ description: >
   export, visibility/opacity/blend, pixel-layer replace, and safe writes.
   Use when inspecting Photoshop files, exporting a layer, editing a texture
   layer, or the user says "read this psd" / "hide this layer and save".
-  Never write host-project paths into this skill.
+  After repeated psd_kit trials, self-iterate official CLI flags instead
+  of leaving ad-hoc Python in chat. Never write host-project paths into
+  this skill.
 license: MIT
 metadata:
   author: MlsMoon
-  version: "1.0"
+  version: "1.1"
   compatibility: Requires Python 3.9+, psd-tools and Pillow.
 ---
 
@@ -45,18 +47,20 @@ exit on failure with the reason on stderr. Batch inspect never composites.
 Writes go to a new file; `--in-place` must be explicit. Keep each `.py` near
 250 lines. Entry point is `psd_kit.py`.
 
-Do not leave retries only in chat. Gate: [references/self-iteration.md](references/self-iteration.md).
+Do not leave retries only in chat. Protocol, gate, skip rules, landing,
+and authorization: [references/self-iteration.md](references/self-iteration.md).
 
-Run the promotion gate before wrap-up if any of these happened this turn:
+Run the gate before wrap-up if any of these happened this turn:
 
 - `psd_kit.py` ran 3 or more times
 - The same flag family failed or was retried 2 or more times
 - Ad-hoc Python did work that should become a first-class flag
+- This skill or `--help` disagrees with the actual CLI result
 
 After 2 failures in the same flag family, reread this skill or `--help`
-before a third try. After the gate, pick one landing: official CLI flag,
-`references/` rule, or this `SKILL.md` usage. Authorization: this skill may
-be updated after the gate. Never write host-project paths or asset names.
+before a third try. A passed gate may update this skill's `SKILL.md`,
+`references/`, and `scripts/` directly. Never write host-project paths
+or asset names.
 
 Wrap-up must print the four-line "PSD read/write self-iteration" report.
 If the gate did not fire, write "No PSD read/write promotion this turn."
@@ -102,3 +106,4 @@ python scripts/psd_kit.py batch-inspect --root ./assets --glob "*.psd" --json
 - [ ] Pixel replace targets `kind=pixel` and `writable=true`
 - [ ] Batch inspect did not composite huge files
 - [ ] Public-repo text has no host-project paths or asset names
+- [ ] Self-iteration gate was judged; a passed attempt used one landing
