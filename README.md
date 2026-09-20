@@ -4,6 +4,15 @@ An [Agent Skill](https://agentskills.io/specification) that teaches AI agents ho
 
 This repository **is** the skill folder. The directory name, GitHub repo name, and `SKILL.md` `name` field must all stay `open-psd-kit`.
 
+## Source repository
+
+This folder is its own Git repository. A Plastic SCM pull of a game project usually copies the files and **drops `.git`**.
+
+- Git: https://github.com/MlsMoon/open-psd-kit
+- Install / update: [Moon Game Dev Tool Manager](https://github.com/MlsMoon/moon-game-dev-tool-manager)
+
+Commit and push skill changes in that Git repo. Do not treat a copy inside one Unity workspace as the place to publish.
+
 ## What this is
 
 Agents should not guess PSD binary layout or call a local Photoshop install. This skill wraps [psd-tools](https://github.com/psd-tools/psd-tools) with a stable CLI for inspect, layer trees, export, property edits, pixel-layer replace, and stacking images into layers.
